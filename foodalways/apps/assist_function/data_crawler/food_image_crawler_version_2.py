@@ -1,9 +1,14 @@
 """
 Crawl pictures from this picture website: https://www.pexels.com/
 Since the picture is dynamically loaded,
-    the response returned is a js function,
-    so the url of the picture is matched by re
-Then use the matching url to get the picture
+the response returned is a js function,
+so the url of the picture is matched by re.
+Then use the matching url to get the picture.
+
+From source root, run
+```
+DJANGO_SETTINGS_MODULE=foodalways.django_food.settings python -m foodalways.apps.assist_function.data_crawler.food_image_crawler_version_2
+```
 """
 
 import re
@@ -13,6 +18,7 @@ import threading
 from queue import Queue
 
 from bs4 import BeautifulSoup as bs
+from django.conf import settings
 import requests
 from hanziconv import HanziConv
 
@@ -36,7 +42,7 @@ def get_image_url(text):
         try:
             short_url = high_pattern.search(url)
             if short_url:
-                long_url = "https://www.pexels.com" + short_url.group(1)
+                long_url = settings.IMAGE_WEBSITE_URL + short_url.group(1)
                 url_list.append(long_url)
         except Exception as e:
             print("Regular expression match error, execute the next match...")
@@ -185,7 +191,7 @@ class GetImage(threading.Thread):
 def main():
     url_queue = Queue()
     for i in range(30, 60):
-        url = f"PEXEL_WEBSITE_URL"
+        url = settings.IMAGE_WEBSITE_URL
         url_queue.put((url, i))
     t1 = GetImage(url_queue)
     t2 = GetImage(url_queue)

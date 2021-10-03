@@ -3,11 +3,8 @@ Use the requests library to crawl the text content from the html of the provided
 """
 
 import requests
-import json
-import random
+from django.conf import settings
 from fake_useragent import UserAgent
-import os
-import time
 
 
 class HTMLGetError(Exception):
@@ -26,10 +23,10 @@ def get_html_text(url, ua=_useragent, refer_page=None, tag=True, stream=False):
     """
     Try to get a web page information, and return the page data
     Params:
-        us: user agent
-        proxies: proxy IP
+        ua: user agent
         refer_page: source page
         tag: Get the webpage by default, False means the obtained picture (binary data)
+        stream: param for requests
     """
 
     headers = {
@@ -40,11 +37,11 @@ def get_html_text(url, ua=_useragent, refer_page=None, tag=True, stream=False):
         headers["Referer"] = refer_page
 
     # Proxy server
-    proxyHost = "proxyHost"
-    proxyPort = "proxyPort"
+    proxyHost = settings.PROXY_HOST
+    proxyPort = settings.PROXY_PORT
     # Proxy tunnel verification information
-    proxyUser = "proxyUser"
-    proxyPass = "proxyPass"
+    proxyUser = settings.PROXY_USER
+    proxyPass = settings.PROXY_PSWD
     # Build agent
     proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
         "host": proxyHost,

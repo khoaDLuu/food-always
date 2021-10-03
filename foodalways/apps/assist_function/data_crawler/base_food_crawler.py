@@ -5,9 +5,9 @@ import json
 import re
 import random
 
-from web_crawler_request.pytmongo_client import mongo_client
-from web_crawler_request.get_html_text import get_html_text, HTMLGetError
-from base_dir import base_dir
+from ..mongodb.mongo_client import mongo_client
+from .get_html_text import get_html_text, HTMLGetError
+from .base_dir import base_dir
 
 
 class DataWriteError(Exception):

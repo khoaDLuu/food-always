@@ -3,10 +3,9 @@ import random
 import time
 import os
 
-from web_crawler_request.pytmongo_client import mongo_client
-from web_crawler_request.get_html_text import get_html_text, HTMLGetError
-from base_dir import base_dir
-from web_crawler_request.ip_dynamic import get_ip
+from ..mongodb.mongo_client import mongo_client
+from .get_html_text import get_html_text, HTMLGetError
+from .base_dir import base_dir
 
 
 def create_random_string():
