@@ -1,7 +1,9 @@
-from bs4 import BeautifulSoup as bs
 import random
 import time
 import os
+
+from bs4 import BeautifulSoup as bs
+from django.conf import settings
 
 from ..mongodb.mongo_client import mongo_client
 from .get_html_text import get_html_text, HTMLGetError
@@ -72,12 +74,12 @@ def run():
     rank_data = []
     for page in range(20, 51):
         print(f"Getting page {page}'s data...")
-        food_rank_url = "FOOD_WEBSITE_RANKING_URL"
+        food_rank_url = settings.FOOD_WEBSITE_RANKING_URL.format(page=page)
 
         if page == 1:
-            refer_url = "FOOD_WEBSITE_REFERRER_URL_1"
+            refer_url = settings.FOOD_WEBSITE_REFERRER_URL
         else:
-            refer_url = "FOOD_WEBSITE_REFERRER_URL_N"
+            refer_url = settings.FOOD_WEBSITE_RANKING_URL.format(page=page - 1)
 
         text = get_html_text(url=food_rank_url, refer_page=refer_url)
         data = food_rank_parser(text)

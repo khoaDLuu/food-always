@@ -271,7 +271,9 @@ LOGGING = {
 # App settings
 
 PROXY_HOST = os.getenv('PROXY_HOST', '')
-PROXY_PORT = int(os.getenv('PROXY_PORT', 80))
-PROXY_USER = os.getenv('PROXY_USER', '')
-PROXY_PSWD = os.getenv('PROXY_PSWD', '')
+PROXY_PORT = int(os.getenv('PROXY_PORT', 8282))
+PROXY_API_KEY = os.getenv('PROXY_API_KEY', '')
 IMAGE_WEBSITE_URL = os.getenv('IMAGE_WEBSITE_URL', '')
+FOOD_WEBSITE_AJAX_URL = os.getenv('FOOD_WEBSITE_AJAX_URL', '')
+FOOD_WEBSITE_RANKING_URL = os.getenv('FOOD_WEBSITE_RANKING_URL', '')
+FOOD_WEBSITE_REFERRER_URL = os.getenv('FOOD_WEBSITE_REFERRER_URL', '')

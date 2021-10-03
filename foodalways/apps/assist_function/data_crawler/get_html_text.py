@@ -2,6 +2,7 @@
 Use the requests library to crawl the text content from the html of the provided URL
 """
 
+from time import sleep
 import requests
 from django.conf import settings
 from fake_useragent import UserAgent
@@ -36,19 +37,10 @@ def get_html_text(url, ua=_useragent, refer_page=None, tag=True, stream=False):
     if refer_page:
         headers["Referer"] = refer_page
 
-    # Proxy server
     proxyHost = settings.PROXY_HOST
     proxyPort = settings.PROXY_PORT
-    # Proxy tunnel verification information
-    proxyUser = settings.PROXY_USER
-    proxyPass = settings.PROXY_PSWD
-    # Build agent
-    proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
-        "host": proxyHost,
-        "port": proxyPort,
-        "user": proxyUser,
-        "pass": proxyPass,
-    }
+    proxyKey = settings.PROXY_API_KEY
+    proxyMeta = f"http://{proxyKey}:@{proxyHost}:{proxyPort}"
     proxies = {
         "http": proxyMeta,
         "https": proxyMeta,
@@ -58,6 +50,7 @@ def get_html_text(url, ua=_useragent, refer_page=None, tag=True, stream=False):
         r = requests.get(url=url, headers=headers, proxies=proxies, timeout=10, stream=stream)
         r.raise_for_status()
         r.encoding = "utf-8"
+        sleep(5)
     except Exception as e:
         # Generally it is an error caused by the agent being blocked
         error_info = (
@@ -100,16 +93,10 @@ def create_headers(ua=_useragent):
         "Accept-Charset": "GB2312,utf-8;q=0.7,*;q=0.7"
     }
 
-    proxyHost = "proxyHost"
-    proxyPort = "proxyPort"
-    proxyUser = "proxyUser"
-    proxyPass = "proxyPass"
-    proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
-        "host": proxyHost,
-        "port": proxyPort,
-        "user": proxyUser,
-        "pass": proxyPass,
-    }
+    proxyHost = settings.PROXY_HOST
+    proxyPort = settings.PROXY_PORT
+    proxyKey = settings.PROXY_API_KEY
+    proxyMeta = f"http://{proxyKey}:@{proxyHost}:{proxyPort}"
     proxies = {
         "http": proxyMeta,
         "https": proxyMeta,

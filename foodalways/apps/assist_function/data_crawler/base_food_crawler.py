@@ -5,6 +5,8 @@ import json
 import re
 import random
 
+from django.conf import settings
+
 from ..mongodb.mongo_client import mongo_client
 from .get_html_text import get_html_text, HTMLGetError
 from .base_dir import base_dir
@@ -132,7 +134,7 @@ def html_text_parse(text, random_id, food_id):
         tags_list.append(tag.text)
 
     # For evaluation, ajax loading of data
-    ajax_url = "FOOD_WEBSITE_AJAX_URL".format(food_id)
+    ajax_url = f"{settings.FOOD_WEBSITE_AJAX_URL}{food_id}"
     try:
         evaluation = get_html_text(ajax_url)
         evaluation_data = json.loads(evaluation)
