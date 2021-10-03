@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'django_food.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME', ''),
         'USER': os.getenv('DB_USERNAME', ''),
         'PASSWORD': os.getenv('DB_PASSWORD', ''),

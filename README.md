@@ -4,7 +4,7 @@ A food making tutorial and food picture website
 Front end use: Bootstrap build<br>
 Back-end development environment: python3.6.2 + django2.2 + xadmin2 (xadmin needs to be installed separately)<br>
 Deployment: Nginx + uWSGI<br>
-Website: www.ifoodalways.com<br>
+Website: www.foodalways.com<br>
 
 
 ## Website demo pages
@@ -21,9 +21,7 @@ Data acquisition: use requests + bs4 + re<br>
 The proxy ip uses Abuyun dynamic version<br>
 Website data source: Making tutorials (#META_FOOD_WEBSITE) + pictures (#META_IMAGE_WEBSITE)<br>
 The location of the crawler code: foodalways/apps/assist_function/data_crawler, the saved data file path needs to be modified by yourself<br>
-The crawled data is stored directly in MongoDB. According to the design of the model, it is divided and dumped to MySQL<br>
-Since the data is divided into pictures and some other text information, it is too big and has not been uploaded to github. If you need to, you can contact me and I will send you the pictures and mysql files
-My email: #META_AUTHOR_EMAIL
+The crawled data is stored directly in MongoDB. According to the design of the model, it is divided and dumped to PostgreSQL<br>
 
 
 ## Development
@@ -75,11 +73,6 @@ Since there are two page paginations when displaying favorites in my user center
     +++ return'{}={}'.format(self.page_type, page_number)
 
 In this way, when the paging object is instantiated, different paging objects can be distinguished by setting the `page_type` parameter
-
-
-### MySQL character encoding problem
-If you use `navicat` to create a database, you must use the `utf8mb4` encoding uniformly. Some characters of the default `utf` cannot be recognized (such as `emoji icon`), resulting in character encoding errors.<br>
-When deploying, it was only exposed during the database data transfer. Because of this coding problem, half a day was wasted.
 
 
 ## Development

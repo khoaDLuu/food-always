@@ -1,7 +1,7 @@
 """
 View-related categories of food,
 including rankings, article details, all pictures, and single pictures
-Function to convert data from MongoDB to MySQL
+Function to convert data from MongoDB to PostgresSQL
 """
 
 import random
@@ -66,7 +66,7 @@ class FoodArticleView(View):
 
         food_steps = FoodSteps.objects.filter(article_id=article_id).order_by('step_number')
 
-        # Data is dumped from MongoDB to MySQL, so there is no need
+        # Data is dumped from MongoDB to PostgresSQL, so there is no need
         # to extract ingredient information from the MongoDB database
         # conn = mongo_client()
         # food_info = conn.food.food_data.find_one({"random_id": article_id})
@@ -276,7 +276,7 @@ class SearchView(View):
 # Data dump function
 def data_transform():
     """
-    Dump the data in mongodb to the mysql database.
+    Dump the data in mongodb to the PostgresSQL database.
     The main purpose is to dump the data in the leaderboard,
     because the numbers of likes and favorites of the food are not crawled,
     it is randomly generated through the dump
@@ -344,7 +344,7 @@ def get_steps():
             food_step.save()
 
 
-# Reduce the size of the picture and save it to the MySQL database
+# Reduce the size of the picture and save it to the PostgresSQL database
 def resize_image():
     """Food Picture Processing Function"""
     conn = mongo_client()
@@ -364,7 +364,7 @@ def resize_image():
 
 
 def image_transform():
-    """Dump image data from MongoDB to MySQL"""
+    """Dump image data from MongoDB to PostgresSQL"""
     conn = mongo_client()
     data = conn.food.food_image.find({}).batch_size(30)
     for item in data:
@@ -438,7 +438,7 @@ def image_transform_1():
 
 
 # In order to enable users to upload article data,
-# the data originally stored in MongoDB needs to be dumped to MySQL
+# the data originally stored in MongoDB needs to be dumped to PostgresSQL
 def food_data_transform():
     conn = mongo_client()
     data = conn.food.food_data.find({}).batch_size(30)
