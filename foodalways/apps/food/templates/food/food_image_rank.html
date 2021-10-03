@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+    <title>Food pictures | Foodalways</title>
+{% endblock %}
+
+
+{% block bread_crumb_navigation %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page"></li>
+            <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home page</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Food pictures</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block food_graph %}
+    {% if message %}
+    <div class="card-columns">
+        {% for image in image_list.object_list %}
+            <div class="card">
+                <a href="{% url 'food:food_image' image.name %}">
+                    <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}{{ image.image }}" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <p class="card-text text-right font-weight-normal" style="font-size: 12px">
+                        <small class="mr-1" style="color: tomato; font-size: 16px">{{ image.like }}</small>
+                        likes
+                        <small class="mr-2"></small>
+                        <samll class="mr-1" style="color: tomato; font-size: 16px">{{ image.fav }}</samll>
+                        favorites
+                    </p>
+                    <p class="card-text">
+                        Tags:
+                        <small class="text-muted">
+                            {% for tag in image.tags.all %}
+                                {% if forloop.counter < 4 %}
+                                   <span class="mr-1">{{ tag }}</span>
+                                {% endif %}
+                            {% endfor %}
+                            ...
+                        </small>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <nav aria-label="Page navigation example" style="margin-top: 30px">
+        <ul class="pagination justify-content-center">
+            {% if image_list.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ image_list.previous_page_number.querystring }}">&laquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">&laquo;</a>
+                </li>
+            {% endif %}
+            {% for page in image_list.pages %}
+                {% if page %}
+                    {% ifequal page image_list.number %}
+                        <li class="page-item disabled">
+                            <a class="page-link">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{{ page.querystring }}">{{ page }}</a>
+                        </li>
+                    {% endifequal %}
+                {% else %}
+                    <li class="none"><a class="page">...</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if image_list.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ image_list.next_page_number.querystring }}">&raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link disabled">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+        <h4 class="h4 text-center">No search results, please change the search keywords</h4>
+    {% endif %}
+{% endblock %}
+
+
+{% block foot %}
+    <hr>
+    <footer class="footer navbar-fixed-bottom" style="margin-top: 20px">
+        <div class="container">
+            <div class="row" style="width:100%; margin: 40px auto 40px">
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Socials | Foodalways</p>
+                </div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Design by xxx</p>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}

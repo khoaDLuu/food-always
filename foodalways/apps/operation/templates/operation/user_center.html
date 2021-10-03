@@ -1,0 +1,565 @@
+{% extends 'base_user_center.html' %}
+{% load static %}
+
+
+{% block title %}
+    <title>User Center | Foodalways</title>
+    <style>
+        .form-control.invalid {
+            border-color: #dc3545;
+        }
+
+        .form-control.invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        #refreshCaptcha:focus {
+            outline: none;
+        }
+    </style>
+{% endblock %}
+
+
+{% block bread_crumb_navigation %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" aria-current="page"></li>
+            <li class="breadcrumb-item"><a href="{% url 'operator:user_center' %}">User Center</a></li>
+            <li class="breadcrumb-item" aria-current="page">Overview</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block center_body %}
+    <nav class="nav-fill">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-home-tab"
+               data-toggle="tab" href="#nav-home" role="tab"
+               aria-controls="nav-home" aria-selected="true">Overview</a>
+            <a class="nav-item nav-link" id="nav-like-tab" role="tab"
+               href="{% url 'operator:user_like' %}">Likes</a>
+            <a class="nav-item nav-link" id="nav-fav-tab" role="tab"
+               href="{% url 'operator:user_fav' %}">Favorites</a>
+            <a class="nav-item nav-link" id="nav-message-tab" role="tab"
+               href="{% url 'operator:user_message' %}">Messages</a>
+        </div>
+    </nav>
+    <div class="tab-content mb-5" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="container bg-white rounded-bottom border-top-0 pt-2 pb-2" style="border: #dee2e6 solid 1px">
+                <div class="row">
+                    <div class="col-3 text-center mt-4">
+                        <div class="col-12">
+                            <h6 class="mt-4 mb-3 lead">Avatar</h6>
+                            <img src="{{ MEDIA_URL }}{{ request.user.head_portrait }}" id="userHeadPortrait"
+                                 alt="Avatar" class="rounded-circle mt-4 mb-4" style="width: 120px; height: 120px">
+                            <br>
+                            <button type="button" class="btn btn-outline-success mt-4 mb-4"
+                                    data-toggle="modal" data-target="#changeImage">
+                                Change avatar
+                            </button>
+                            <!-- Modal -->
+                            <form id="imageUploadForm" enctype="multipart/form-data" autocomplete="off">
+                                <div class="modal fade" id="changeImage" tabindex="-1" role="dialog" aria-labelledby="imageTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="imageTitle">Change avatar</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div id="imageErrorAlter"></div>
+                                                <div class="custom-file mb-3 mt-3">
+                                                    <input type="file" class="custom-file-input" id="imageFileInput" name="head_portrait">
+                                                    <label class="custom-file-label" for="imageFileInput" id="imageFileLabel">Upload image</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" id="cancelImageFileUpload" class="btn btn-outline-secondary" data-dismiss="modal">
+                                                    Cancel
+                                                </button>
+                                                <button type="button" id="submitImageFileUpload" class="btn btn-outline-secondary" disabled>
+                                                    OK
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-6 text-center mt-4">
+                        <h6 class="mt-4 mb-4 lead">User information</h6>
+                        <form id="changeUserInfoForm" novalidate>
+                            <div class="form-group row">
+                                <label for="nickName" class="col-sm-2 col-form-label">Your nickname:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="nickName" placeholder="Please enter a nickname"
+                                           value="{{ request.user.nick_name }}" required name="nick_name">
+                                    <small id="nickNameHelpBlock" class="form-text text-muted text-left">
+                                        The length of the nickname should be within 30 characters
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="birthday" class="col-sm-2 col-form-label">Your birthday:</label>
+                                <div class="col-sm-10">
+                                    <input type="date" class="form-control" id="birthday" placeholder="please enter your birthday"
+                                           value="{{ request.user.birthday|date:'Y-m-d' }}" required name="birthday">
+                                </div>
+                            </div>
+                            <fieldset class="form-group">
+                                <div class="row">
+                                    <legend class="col-form-label col-sm-2 pt-0">Gender:</legend>
+                                    <div class="form-check form-check-inline ml-3">
+                                        <input class="form-check-input" type="radio" name="gender" id="male" value="male"
+                                                {% if request.user.gender == 'male' %} checked {% endif %}>
+                                        <label class="form-check-label" for="male">Male</label>
+                                    </div>
+                                    <div class="form-check form-check-inline ml-3">
+                                        <input class="form-check-input" type="radio" name="gender" id="female" value="female"
+                                                {% if request.user.gender == 'female' %} checked {% endif %}>
+                                        <label class="form-check-label" for="female">Female</label>
+                                    </div>
+                                    <div class="form-check form-check-inline ml-3">
+                                        <small id="genderHelpInline" class="text-muted text-right">
+                                            The default gender is male, click to change directly if needed
+                                        </small>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset disabled>
+                                <div class="form-group row">
+                                    <label for="userEmail" class="col-sm-2 col-form-label">Email:</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="userEmail"
+                                               value="{{ request.user.email }}" name="email">
+                                        <small id="emailHelpBlock" class="form-text text-muted text-left">
+                                            This is just for display, click to edit email if needed
+                                        </small>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-group row">
+                                <label for="signature" class="col-sm-2 col-form-label">Signature:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="signatureInput" placeholder="signature"
+                                           value="{{ request.user.signature }}" name="signature">
+                                    <small id="signatureHelpBlock" class="form-text text-muted text-left">
+                                        The length of signature should be within 80 characters
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 small">
+                                    <div class="alert alert-info" role="alert">
+                                        If you want to change the information,
+                                        please fill in the input box at the top
+                                        and then click the update button
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-outline-secondary mb-4" disabled
+                                            id="submitChangeUserInfo">
+                                        Edit user information
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-3 text-center mt-4">
+                        <h6 class="mt-4 mb-3 lead">Change password/email</h6>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-success mt-4 mb-4"
+                                    data-toggle="modal" data-target="#changePassword" id="changPasswordButton">
+                                Change password
+                            </button>
+                            <!-- Modal -->
+                            <form id="changePasswordForm">
+                                <div class="modal fade" id="changePassword" tabindex="-1" role="dialog" aria-labelledby="passwordTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="passwordTitle">Change password</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-row">
+                                                    <div class="col-12">
+                                                        <div class="form-group text-left">
+                                                            <label for="password1">New password:</label>
+                                                            <input type="password" name="password" class="form-control"
+                                                                   id="password1" placeholder="Enter new password" required>
+                                                            <small id="password1HelpBlock" class="form-text text-muted text-left">
+                                                                Password requirement: a combination of 6-16 English letters,
+                                                                digits and special symbols, including ! # $ _ % ^ & *
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-12">
+                                                        <div class="form-group text-left">
+                                                            <label for="password2">Confirm new password:</label>
+                                                            <input type="password" name="password2" class="form-control"
+                                                                   id="password2" placeholder="Enter a new password again" required>
+                                                            <small id="password2HelpBlock" class="form-text text-muted text-left">
+                                                                Please enter the password again to ensure that the two inputs match
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row align-items-center">
+                                                    <div class="col-8">
+                                                        <div class="form-group text-left">
+                                                            <label for="passwordVerifyCode">Verification code:</label>
+                                                            <input type="text" id="id_reg_captcha_1" name="captcha_1" required
+                                                                   class="form-control form-control-captcha fl" placeholder="Please enter the verification code">
+                                                            <small id="captchaHelpBlock" class="form-text text-muted text-left">
+                                                                Please enter the letters from the captcha image on the right side
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <button class="btn" id="refreshCaptcha" type="button" title="Click to change verification code">
+                                                            <img src="" class="captcha" alt="captcha" id="passwordCaptcha">
+                                                        </button>
+                                                        <input id="id_reg_captcha_0" name="captcha_0" type="hidden" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                                    Cancel
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary" id="submitPasswordButton" disabled>
+                                                    OK
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-success mt-4 mb-4"
+                                    data-toggle="modal" data-target="#changeEmail">
+                                Change email
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="changeEmail" tabindex="-1" role="dialog" aria-labelledby="emailTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="emailTitle">Change user email</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-group text-left">
+                                                    <label for="newEmail">New email address:</label>
+                                                    <input type="email" name="email" class="form-control" required
+                                                           id="newEmail" placeholder="The new email">
+                                                    <small id="emailChangeHelpBlock" class="form-text text-muted text-left">
+                                                        Please fill in the new email, which consists of
+                                                        only English letters, digits, underscores, periods, and the hyphen
+                                                    </small>
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label for="emailVerifyCode">Verification code:</label>
+                                                    <input type="text" name="emailCode" class="form-control" required
+                                                           id="emailVerifyCode" placeholder="Please enter the verification code of new email">
+                                                    <small id="emailCodeHelpBlock" class="form-text text-muted text-left">
+                                                        Please fill in the verification code
+                                                    </small>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary mr-3" id="getChangeEmailCode" disabled>
+                                                Get verification code
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                                Cancel
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" disabled id="submitChangeEmailButton">
+                                                OK
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block coustomjs %}
+    <script>
+        $("#imageFileInput").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+                $(this).siblings("#imageFileLabel").addClass("selected").html(fileName);
+                $('#submitImageFileUpload').removeAttr('disabled');
+                $('#submitImageFileUpload').removeClass('btn-outline-secondary');
+                $('#submitImageFileUpload').addClass('btn-outline-success');
+            } else {
+                var imageError = '<div class="alert alert-warning alert-dismissible fade show" id="imageError" role="alert"\n' +
+                    '                                                     style="font-size: 14px">\n' +
+                    '                                                    <strong>error:</strong> File type, only JPG and PNG format are supported\n' +
+                    '                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">\n' +
+                    '                                                        <span aria-hidden="true">&times;</span>\n' +
+                    '                                                    </button>\n' +
+                    '                                                </div>';
+                $('#imageErrorAlter').append(imageError);
+            }
+        });
+    </script>
+    <script>
+        $('#submitImageFileUpload').on('click', function () {
+            var fs = document.getElementById('imageUploadForm');
+            var form_data = new FormData(fs);
+            $.ajax({
+                cache: false,
+                url: "{% url 'operator:change_head_portrait' %}",
+                type: 'POST',
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                async: true,
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    $('#changeImage').modal('hide');
+                    if (data.status === 'success') {
+                        var image = data.image;
+                        $('#userHeadPortrait').attr('src', image);
+                        $('#userAvatar').attr('src', image);
+                    } else {
+                        alert('Portrait modification failed, please try again')
+                    }
+                }
+            }); // end ajax
+        });
+    </script>
+    <script>
+        $('#changeUserInfoForm').on('change', function () {
+            $('#submitChangeUserInfo').removeClass('btn-outline-secondary');
+            $('#submitChangeUserInfo').addClass('btn-outline-success');
+            $('#submitChangeUserInfo').removeAttr('disabled');
+            $('#signatureInput').removeClass('invalid');
+            $('#nickName').removeClass('invalid');
+        });
+    </script>
+    <script>
+        $('#submitChangeUserInfo').on('click', function () {
+            $.ajax({
+                cache: false,
+                url: "{% url 'operator:change_user_info' %}",
+                type: 'POST',
+                data: $('#changeUserInfoForm').serialize(),
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        $('#submitChangeUserInfo').removeClass('btn-outline-success');
+                        $('#submitChangeUserInfo').addClass('btn-outline-secondary');
+                        $('#submitChangeUserInfo').attr("disabled", true);
+                        alert("Success changing user info");
+                    } else {
+                        $('#submitChangeUserInfo').removeClass('btn-outline-success');
+                        $('#submitChangeUserInfo').addClass('btn-outline-secondary');
+                        $('#submitChangeUserInfo').attr("disabled", true);
+                        var key1 = "nick_name";
+                        var key2 = "birthday";
+                        var key3 = "signature";
+                        if (key1 in data.message) {
+                            $('#nickNameHelpBlock').text(data.message[key1]);
+                            $('#nickName').addClass('invalid');
+                        }
+                        if (key3 in data.message) {
+                            $('#signatureHelpBlock').text(data.message[key3]);
+                            $('#signatureInput').addClass('invalid');
+                        }
+                        alert("Failed to change user info");
+                    }
+                }
+            })
+        });
+    </script>
+    <script>
+        $('#changPasswordButton').on('click', refreshCaptcha);
+        $('#refreshCaptcha').on('click', refreshCaptcha);
+
+        function refreshCaptcha() {
+            $.getJSON("{% url 'operator:refresh_captcha' %}", function (result) {
+                $('#passwordCaptcha').attr('src', result['captcha_image']);
+                $('#id_reg_captcha_0').val(result['captcha_key']);
+            });
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#password1').on('input', function () {
+                var patt = /^(?![\d]+$)(?![a-zA-Z]+$)(?![!#$%^&*]+$)[\da-zA-Z!#$%_^&*]{6,16}$/;
+                var password1 = $('#password1').val();
+                if ( patt.test(password1) === false) {
+                    $('#password1').addClass('invalid');
+                    $('#password1HelpBlock').text(
+                        'Password requirement: a combination of 6-16 English letters, ' +
+                        'digits and special symbols, including ! # $ _ % ^ & *'
+                    )
+                } else {
+                    $('#password1').removeClass('invalid');
+                    $('#password1HelpBlock').text('Password requirements')
+                }
+            })
+        });
+
+        $(document).ready(function () {
+            $('#password2').on('input', function () {
+                var password1 = $('#password1').val();
+                var password2 = $('#password2').val();
+                if (password1 === password2) {
+                    $('#password2').removeClass('invalid');
+                    $('#password2HelpBlock').text('Enter the password again');
+                    $('#submitPasswordButton').removeClass('btn-outline-secondary');
+                    $('#submitPasswordButton').addClass('btn-outline-success');
+                    $('#submitPasswordButton').removeAttr('disabled', false);
+                } else {
+                    $('#password2').addClass('invalid');
+                    $('#password2HelpBlock').text('Two input passwords are not consistent');
+                }
+            })
+        });
+    </script>
+    <script>
+        $('#submitPasswordButton').on('click', function () {
+            $.ajax({
+                cache: false,
+                data: $('#changePasswordForm').serialize(),
+                url: "{% url 'operator:change_password' %}",
+                type: 'POST',
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        $('#changePassword').modal('hide');
+                        alert('Password changed successfully');
+                        location.href = data.url
+                    } else if (data.status === 'fail') {
+                        if ('captcha' in data.error) {
+                            $('#id_reg_captcha_1').addClass('invalid');
+                            $('#captchaHelpBlock').text('Verification code error');
+                        }
+                        if ('password2' in data.error){
+                            $('#password2').addClass('invalid');
+                            $('#password2HelpBlock').text('Two input passwords are not consistent');
+                        }
+                        if ('password' in data.error){
+                            $('#password1').addClass('invalid');
+                            $('#password1HelpBlock').text(
+                                'Password requirement: a combination of 6-16 English letters, ' +
+                                'digits and special symbols, including ! # $ _ % ^ & *'
+                            )
+                        }
+                        refreshCaptcha();
+                    }
+                }
+            })
+        });
+    </script>
+    <script>
+        $('#newEmail').on('input', function () {
+            var pattern = /^([a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,})){1}(;[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,}))*$/;
+            var email = $('#newEmail').val();
+            if (pattern.test(email)) {
+                $('#getChangeEmailCode').removeAttr('disabled');
+                $('#getChangeEmailCode').removeClass('btn-outline-secondary');
+                $('#getChangeEmailCode').addClass('btn-outline-success');
+                $('#newEmail').removeClass('invalid');
+                $('#emailChangeHelpBlock').text('Valid email!');
+            } else {
+                $('#newEmail').addClass('invalid');
+                $('#emailChangeHelpBlock').text('Invalid email!');
+            }
+        });
+        $('#getChangeEmailCode').on('click', function () {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "{% url 'operator:get_email_code' %}",
+                data: {'email': $('#newEmail').val()},
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        $('#emailCodeHelpBlock').text('Verification code has been sent, please go to the new email for verification code');
+                        $('#submitChangeEmailButton').removeAttr('disabled');
+                        $('#submitChangeEmailButton').removeClass('btn-outline-secondary');
+                        $('#submitChangeEmailButton').addClass('btn-outline-success');
+                        $('#getChangeEmailCode').attr('disabled', true);
+                        $('#getChangeEmailCode').removeClass('btn-outline-success');
+                        $('#getChangeEmailCode').addClass('btn-outline-secondary');
+                    } else {
+                        if (data.message === 'send') {
+                            alert('Sorry, verification code for email is incorrect, please try again');
+                        } else if (data.message === 'exist') {
+                            $('#newEmail').addClass('invalid');
+                            $('#emailChangeHelpBlock').text('Sorry, the new email has been registered');
+                        } else if (data.message === 'invalid') {
+                            $('#newEmail').addClass('invalid');
+                            $('#emailChangeHelpBlock').text('Invalid email!');
+                        }
+
+                    }
+                }
+            })
+        });
+        $('#emailVerifyCode').on('input', function () {
+            $('#emailVerifyCode').removeClass('invalid');
+            $('#emailCodeHelpBlock').text('Please enter the email contained in the verification code');
+        })
+    </script>
+    <script>
+        $('#submitChangeEmailButton').on('click', function () {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "{% url 'operator:change_email' %}",
+                data: {'email': $('#newEmail').val(), 'email_code': $('#emailVerifyCode').val(),},
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        $('#changeEmail').modal('hide');
+                        $('#userEmail').attr("value", data.email);
+                        alert('Email changed successfully')
+                    } else {
+                        $('#emailCodeHelpBlock').text(data.message);
+                        $('#emailVerifyCode').addClass('invalid');
+                    }
+                }
+            })
+        });
+    </script>
+{% endblock %}

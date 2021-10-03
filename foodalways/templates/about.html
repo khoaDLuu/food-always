@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <meta name="robots" content="index,follow">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/about_style.css' %}">
+    <link rel="shortcut icon" href="{% static 'media/image/favicon.ico' %}">
+
+    {% block title %}
+        <title>About | Foodalways</title>
+    {% endblock %}
+</head>
+<body class="bg-light">
+
+{# Top navigation bar #}
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <a class="navbar-brand ml-4" href="{% url 'home_page' %}">
+        <img style="float: left; width: 201px; height: 42px" src="{% static 'media/image/foodalwayslogo.png' %}" alt="logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% if focus == 'home' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'home_page' %}">Home page<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'article' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'food:food_ranking' %}">Food list</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'image' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'food:food_image_rank' %}">Food pictures</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'message' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'message' %}">Leave a message</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'about' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'food:food_image_rank' %}">About</a>
+            </li>
+        </ul>
+    </div>
+    <div class="collapse navbar-collapse mr-4" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+            {# Determine whether the user is logged in #}
+            {% if not request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:login' %}">Login<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:register' %}">Register</a>
+                </li>
+            {% else %}
+                <li class="nav-item dropdown mr-2 hover">
+                    <button type="button" class="mr-2" id="jsUploadFoodArticle">
+                        Upload food articles
+                    </button>
+                </li>
+                <li class="nav-item dropdown mr-2 hover">
+                    <a class="nav-link dropdown-toggle" href="#"
+                       id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <img src="{% static 'media/image/message_no_1.png' %}" alt="The message"
+                             style="width: 32px; height: 32px; border-radius: 16px" class="hover" id="jsMessageImage">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mt-0 rounded-0 border-0" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item disabled" href="#" id="jsMessageTitle">There are no new messages</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'operator:user_message' %}">Message center</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown hover">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <img src="{{ MEDIA_URL }}{{ request.user.head_portrait }}" alt="The avatars"
+                             style="width: 32px; height: 32px; border-radius: 16px" class="hover">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mt-0 rounded-0 border-0" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item disabled" href="#">Hi! {{ request.user.nick_name }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'operator:user_center' %}">Profile</a>
+                        <a class="dropdown-item" href="{% url 'user:logout' %}">Logout</a>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+{# Page Body #}
+<div class="container" style="margin-top: 20px">
+    <div class="row">
+        {# Breadcrumb #}
+        <div class="col-12">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item" aria-current="page"></li>
+                <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home page</a></li>
+                <li class="breadcrumb-item active" aria-current="page">about</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 mt-5 mb-4">
+            <div class="card">
+                <div class="card-header card-header-tomato lead">
+                    About the website
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title lead">This is a website about food making tutorials and food pictures</h6>
+                    <p class="card-text mt-3 mb-0">Source of website resources: </p>
+                    <div class="card-text mt-0 ml-4">
+                        <ol class="list-unstyled">
+                            <li>
+                                Food making tutorial: Food world,
+                                if you need more food making tutorials go to this website
+                                <small><a href="#META_FOOD_WEBSITE"></a></small>
+                            </li>
+                            <li>
+                                Food pictures: pixabay, if you need more pictures, go to this website
+                                <small><a href="#META_IMAGE_WEBSITE"></a></small>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 mb-5">
+            <div class="card">
+                <div class="card-header card-header-tomato lead">
+                    About me
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title lead">A human who has worked hard to evolve into a programmer</h6>
+                    <p class="card-text mt-3 mb-0">Current skills:</p>
+                    <div class="card-text mt-0 ml-4">
+                        <ol class="list-unstyled">
+                            <li>
+                                Language: Python
+                            </li>
+                            <li>
+                                Front-end: HTML + CSS3 + JavaScript, Bootstrap
+                            </li>
+                            <li>
+                                Back-end: Django
+                            </li>
+                            <li>
+                                Web crawling: Requests + BeautifulSoup
+                            </li>
+                            <li>
+                                Database: MySQL, MongoDB, Redis
+                            </li>
+                            <li>
+                                More skills are still loading...
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div id="page"></div>
+{# Footer #}
+{% block foot %}
+    <hr>
+    <footer class="footer navbar-fixed-bottom" style="margin-top: 20px">
+        <div class="container">
+            <div class="row" style="width:100%; margin: 40px auto 40px">
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Socials | Foodalways</p>
+                </div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Design by xxx</p>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+
+<script type="text/javascript" src="{% static 'js/jquery-3.4.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
+
+{% comment %}
+When the "html" page uses "ajax" for asynchronous data request and response,
+a "403" error will occur. After inquiry, the official solution of "django"
+is to save the code to a "js file" and import it into the "html" page.
+Remember to load after loading "jQuery".
+{% endcomment %}
+
+<script type="text/javascript" src="{% static 'js/crsf_ajax.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/custome.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        var logged = '{{ request.user.is_authenticated }}';
+        console.log(logged);
+        if (logged === "True") {
+            $.ajax({
+                cache: false,
+                type: "GET",
+                async: true,
+                url: "{% url 'operator:get_user_message' %}",
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        if (data.counter > 0) {
+                            var image = "{% static 'media/image/message_1.png' %}";
+                            var message = 'You have ' + data.counter + ' unread messages';
+                            $('#jsMessageImage').attr('src', image);
+                            $('#jsMessageTitle').text(message)
+                        } else {
+                            return false
+                        }
+                    }
+                }
+            })
+        } else {
+            return false
+        }
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $('#jsUploadFoodArticle').on('click', function () {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "{% url 'operator:upload_food_article' %}",
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        location.href = data.url
+                    } else {
+                        alert('The operation failed, please try again later!')
+                    }
+                }
+            })
+        })
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+{% extends "base_login.html" %}
+{% load static %}
+
+<html lang="en">
+
+
+{% block html_title %}
+    <title>User registration | Foodalways</title>
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <style>
+        .recode-image {
+            background: url({{ MEDIA_URL }}{{ recode_image.recode_image_path }}) 23px 9px no-repeat;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="wrap dowebok">
+        <div class="logo">
+            <a href="{% url 'home_page' %}">
+                <img class="head-image" src="{% static 'media/image/login_default.png' %}" alt="logo">
+            </a>
+        </div>
+        <form id="jsRegisterForm">
+            <div><h3>User registration</h3></div>
+            <div class="form-item">
+                <input id="jsUsername" class="username" name="username" type="text" autocomplete="off" placeholder="User name: a combination of 4-16 digits or letters" required>
+            </div>
+            <div class="form-item">
+                <input id="jsEmail" class="email" name="email" type="email" autocomplete="off" placeholder="Registered email" required>
+            </div>
+            <div class="form-item">
+                <input id="jsPassword" class="password" name="password" type="password" autocomplete="off" placeholder="Password: a combination of 8-16 digits, symbols or letters" required>
+            </div>
+            <div class="form-item">
+                <div>
+                    <input id="jsRecode" class="recode" name="recode" type="text" autocomplete="off" placeholder="Result of the equation in the image" required>
+                    <button type="button" id="jsRecodeImage" class="recode-image"></button>
+                </div>
+            </div>
+            <div class="form-item">
+                <button id="jsSubmit" type="button">Register</button>
+            </div>
+        </form>
+        <div class="reg-bar">
+            <a class="reg" href="{% url 'home_page' %}">Return to the home page</a>
+            <a class="forget" href="{% url 'user:login' %}">Already have an account?</a>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                $('#jsSubmit').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'user:register' %}",
+                        data: $('#jsRegisterForm').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            // Restore the input box style
+                            $("#jsRecode").removeClass("error");
+                            $("#jsUsername").removeClass("error");
+                            $("#jsEmail").removeClass("error");
+                            $("#jsRecode").attr({
+                                placeholder: "Result of the equation in the image"
+                            });
+                            $("#jsUsername").attr({
+                                placeholder: "User name: a combination of 4-16 digits or letters"
+                            });
+                            $("#jsEmail").attr({
+                                placeholder: "registered email"
+                            });
+                            if (data.status === 'success'){
+                                alert(
+                                    "Registration is successful, please go to the registered email address to activate"
+                                );
+                            } else if (data.status === 'fail') {
+                                if (data.fail_type === "form") {
+                                    // Update verification code
+                                    var path_1 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_1 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_1.replace("12345", path_1);
+                                    $(".recode-image").css("background", url);
+                                    alert("The information entered does not meet the requirements, please re-enter");
+                                } else if (data.fail_type === "recode") {
+                                    // Update verification code
+                                    var path_2 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_2 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_2.replace("12345", path_2);
+                                    $(".recode-image").css("background", url);
+                                    // Show an error message
+                                    $("#jsRecode").attr({
+                                        placeholder : "Calculation result is wrong" ,
+                                        class: "recode error",
+                                    });
+                                    $("#jsRecode").val("");
+                                } else if (data.fail_type === "username") {
+                                    // Update verification code
+                                    var path_3 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_3 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_3.replace("12345", path_3);
+                                    $(".recode-image").css("background", url);
+                                    // Show an error message
+                                    $("#jsUsername").attr({
+                                        placeholder: "Username has been registered",
+                                        class: "recode error",
+                                    });
+                                    $("#jsUsername").val("");
+                                } else if (data.fail_type === "email") {
+                                    // Update verification code
+                                    var path_4 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_4 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_4.replace("12345", path_4);
+                                    $(".recode-image").css("background", url);
+                                    // Show an error message
+                                    $("#jsEmail").attr({
+                                        placeholder: "Email has been registered",
+                                        class: "recode error",
+                                    });
+                                    $("#jsEmail").val("");
+                                } else if (data.fail_type === "send_email") {
+                                    alert("Failed to send the email, please check if your email exists")
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                $('#jsRecodeImage').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'user:flush_recode_image' %}",
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                var path_1 = JSON.parse(data.recode_image).recode_image_path;
+                                var url_1 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                url = url_1.replace("12345", path_1);
+                                $(".recode-image").css("background", url);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+
+
+</html>

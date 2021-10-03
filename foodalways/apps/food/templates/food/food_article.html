@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+    <title>Foods | Foodalways</title>
+{% endblock %}
+
+
+{% block bread_crumb_navigation %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" aria-current="page"></li>
+            <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home page</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'food:food_ranking' %}">Food list</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ food.name }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block food_acticle %}
+    <hr>
+    <div>
+        <h3 class="lead mt-2 mb-2">{{ food.name }}</h3>
+        <hr>
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-inline">
+                    <li class="list-inline-item">
+                        Collection and sharing:
+                    </li>
+                    <li class="list-inline-item" id="addLike">
+                        <img {% if like_status == 'yes' %}
+                            src="{% static 'media/image/like_1.png' %}" title="Liked"
+                        {% else %}
+                            src="{% static 'media/image/unlike_1.png' %}" title="Click to like"
+                        {% endif %}
+                            alt="Likes" class="like-fav" id="likeArticle">
+                        <input type="hidden" id="status-of-like" value="{{ like_status }}" class="hide">
+                    </li>
+                    <li class="list-inline-item" id="addFav" title="Favorite">
+                        <img {% if fav_status == 'yes' %}
+                            src="{% static 'media/image/fav_1.png' %}" title="Favorited"
+                        {% else %}
+                            src="{% static 'media/image/unfav_1.png' %}" title="Click to favorite"
+                        {% endif %}
+                            alt="Favorite" class="like-fav" id="favArticle">
+                        <input type="hidden" id="status-of-fav"
+                               value="{{ fav_status }}">
+                    </li>
+                </ul>
+            </div>
+            <p class="col-6 text-right" style="color: gray; font-size: 14px">
+                <span style="color: tomato; font-size: 22px">{{ food.like }}&nbsp;</span>likes
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <span style="color: tomato; font-size: 22px">{{ food.fav }}&nbsp;</span>favorites
+            </p>
+        </div>
+        <div class="row ml-1">
+            <p style="color: gray; font-size: 14px">
+                Tags:
+                {% for tag in food.tags.all %}
+                    <a class="mr-1" href="{% url 'food:tag_food' tag %}">{{ tag }}</a>
+                {% endfor %}
+            </p>
+        </div>
+
+        <img class="img-fluid" src="{{ MEDIA_URL }}{{ food_image }}" alt="{{ food.name }}">
+        <p style="margin: 10px 5px">
+            {{ food.description|linebreaksbr }}
+        </p>
+    </div>
+    <hr>
+    <div>
+        <h3 class="lead mt-2 mb-2">Ingredients</h3>
+        <hr>
+        <table class="table table-sm" style="color: gray">
+            {% if food_info_1 %}
+                <thead style="background-color: rgba(255, 99, 71, 0.5); color: white;">
+                <tr>
+                    <th scope="col" colspan="2" class="text-center">Main ingredients</th>
+                </tr>
+                </thead>
+                {% for info in food_info_1 %}
+                    <tbody>
+                    <tr>
+                        <th scope="row">&nbsp;&nbsp;&nbsp;{{ info.name }}</th>
+                        <td>
+                            {{ info.dosage }}
+                        </td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+            {% if food_info_2 %}
+                <thead style="background-color: rgba(255, 99, 71, 0.5); color: white;">
+                <tr>
+                    <th scope="col" colspan="2" class="text-center">Supplementary</th>
+                </tr>
+                </thead>
+                {% for info in food_info_2 %}
+                    <tbody>
+                    <tr>
+                        <th scope="row">&nbsp;&nbsp;&nbsp;{{ info.name }}</th>
+                        <td>
+                            {{ info.dosage }}
+                        </td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+            {% if food_info_3 %}
+                <thead style="background-color: rgba(255, 99, 71, 0.5); color: white;">
+                <tr>
+                    <th scope="col" colspan="2" class="text-center">Ingredients</th>
+                </tr>
+                </thead>
+                {% for info in food_info_3 %}
+                    <tbody>
+                    <tr>
+                        <th scope="row">&nbsp;&nbsp;&nbsp;{{ info.name }}</th>
+                        <td>
+                            {{ info.dosage }}
+                        </td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+    <hr>
+    <div>
+        <h3 class="lead mt-2 mb-2">Preparation steps</h3>
+        <hr>
+        <ul class="list-unstyled">
+            {% for step in food_steps %}
+                <li class="media my-4">
+                    <img class="mr-3 w-50" src="{{ MEDIA_URL }}{{ step.image }}" alt="{{ step.step_number }}">
+                    <div class="media-body">
+                        Step {{ step.step_number }}: {{ step.description }}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <hr>
+    <div>
+        {% if food.tips %}
+            <h3 class="lead mt-1 mb-1">Tips:</h3>
+            <hr>
+            <p>{{ food.tips |linebreaksbr }}</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block customerjs %}
+    <script>
+        $(document).ready(function () {
+            $('#addLike').on('click', function () {
+                if ($('#status-of-like').val() === 'unsigned') {
+                    alert('Please login again to perform the action');
+                    return false
+                } else {
+                    console.log(1);
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: {
+                            "status": $('#status-of-like').val(),
+                            "id": '{{food.article_id}}',
+                            "type": "food_article"
+                        },
+                        url: "{% url 'operator:add_like' %}",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                if (data.like_status === 'yes') {
+                                    var likeImage = '{% static "media/image/like_1.png" %}';
+                                    $('#likeArticle').attr('src', likeImage);
+                                    $('#likeArticle').attr('title', 'Liked');
+                                    $('#status-of-like').val(data.like_status);
+                                } else if (data.like_status === 'no') {
+                                    var unlikeImage = '{% static "media/image/unlike_1.png" %}';
+                                    $('#likeArticle').attr('src', unlikeImage);
+                                    $('#likeArticle').attr('title', 'Click to like');
+                                    $('#status-of-like').val(data.like_status);
+                                }
+                            } else {
+                                alert("The operation failed, please try later");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#addFav').on('click', function () {
+                if ($('#status-of-fav').val() === 'unsigned') {
+                    alert('Please login again to perform the action');
+                    return false
+                } else {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: {
+                            "status": $('#status-of-fav').val(),
+                            "id": '{{food.article_id}}',
+                            "type": "food_article"
+                        },
+                        url: "{% url 'operator:add_fav' %}",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                if (data.fav_status === 'yes') {
+                                    var favImage = '{% static "media/image/fav_1.png" %}';
+                                    $('#favArticle').attr('src', favImage);
+                                    $('#favArticle').attr('title', 'Favorited');
+                                    $('#status-of-fav').val(data.fav_status);
+                                } else if (data.fav_status === 'no') {
+                                    var unfavImage = '{% static "media/image/unfav_1.png" %}';
+                                    $('#favArticle').attr('src', unfavImage);
+                                    $('#favArticle').attr('title', 'Click to favorite');
+                                    $('#status-of-fav').val(data.fav_status);
+                                }
+                            } else {
+                                alert(data.message);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

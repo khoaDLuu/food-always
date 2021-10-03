@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+{% extends "base_login.html" %}
+{% load static %}
+
+<html lang="en">
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <style>
+        .recode-image {
+            background: url({{ MEDIA_URL }}{{ recode_image.recode_image_path }}) 23px 9px no-repeat;
+        }
+    </style>
+{% endblock %}
+{% block html_title %}
+    <title>Login | Foodalways</title>
+{% endblock %}
+
+
+{% block main %}
+    <div class="wrap dowebok">
+        <div class="logo">
+            <a href="{% url 'home_page' %}">
+                <img class="head-image" src="{% static 'media/image/login_default.png' %}" alt="logo">
+            </a>
+        </div>
+        <div><h3>Login</h3></div>
+        <form id="jsLoginForm">
+            <div class="form-item">
+                <input id="jsUsername" name="username" class="username" type="text"
+                       autocomplete="off" placeholder="Email/Username" required>
+            </div>
+            <div class="form-item">
+                <input id="jsPassword" name="password" class="password"
+                       type="password" autocomplete="off" placeholder="Login password" required>
+            </div>
+            <div class="form-item">
+                <div>
+                    <input id="jsRecode" name="recode" class="recode"
+                           type="text" autocomplete="off" placeholder="Result of the equation in the image" required>
+                    <button type="button" id="jsRecodeImage" class="recode-image"></button>
+                </div>
+            </div>
+            <div class="form-item">
+                <button type="button" id="jsLoginSubmit">Log in</button>
+            </div>
+        </form>
+        <div class="reg-bar">
+            <a class="reg" href="{% url 'user:register' %}">Register now</a>
+            <a class="forget" href="{% url 'user:forget_password' %}">Forgot password?</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function(){
+            {% if messages %}
+                {% for message in messages %}
+                    var message = "{{ message }}";
+                    alert(message);
+                {% endfor %}
+            {% endif %}
+        })
+    </script>
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                $('#jsLoginSubmit').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'user:login' %}",
+                        data: $('#jsLoginForm').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            // Restore the login box style
+                            $("#jsRecode").removeClass("error");
+                            $("#jsUsername").removeClass("error");
+                            $("#jsPassword").removeClass("error");
+                            $("#jsRecode").attr({
+                                placeholder: "Result of the equation in the image"
+                            });
+                            $("#jsUsername").attr({
+                                placeholder: "Email/Username"
+                            });
+                            $("#jsPassword").attr({
+                                placeholder: "Login password"
+                            });
+                            if (data.status === "fail"){
+                                /* *
+                                * There are many problems encountered here:
+                                * The first is to adjust the rendering effect
+                                * of the page according to the returned json data
+                                * The various attributes of the tag can only be modified
+                                * according to the id and class through the method provided by js
+                                *     $("#jsRecode").attr({})
+                                *     Pass in the key-value pair of the attribute for batch modification
+                                *     ("#JsRecode").val(""); --> settings tab is empty
+                                *     Cannot be done by value : ""
+                                * Another problem: Django's template does not recognize js variables
+                                *     Self-ability is realized by way of placeholders
+                                * */
+                                if (data.fail_type === "recode"){
+                                    var path_1 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_1 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_1.replace("12345", path_1);
+                                    $(".recode-image").css("background", url);
+                                    $("#jsRecode").attr({
+                                        placeholder : "Calculation result is wrong" ,
+                                        class: "recode error",
+                                    });
+                                    $("#jsRecode").val("");
+                                } else if (data.fail_type === "username"){
+                                    var path_2 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_2 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_2.replace("12345", path_2);
+                                    $(".recode-image").css("background", url);
+                                    $("#jsUsername").attr({
+                                        placeholder: "User name or email is not registered",
+                                        class: "recode error",
+                                    });
+                                    $("#jsUsername").val("");
+                                } else if (data.fail_type === "password"){
+                                    var path_3 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_3 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_3.replace("12345", path_3);
+                                    $(".recode-image").css("background", url);
+                                    $("#jsPassword").attr({
+                                        placeholder: "Username and password do not match",
+                                        class: "recode error",
+                                    });
+                                    $("#jsPassword").val("");
+                                } else if (data.fail_type === "form"){
+                                    var path_4 = JSON.parse(data.recode_image).recode_image_path;
+                                    var url_4 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                    url = url_4.replace("12345", path_4);
+                                    $(".recode-image").css("background", url);
+                                    alert("The information entered is incorrect, please re-enter")
+                                } else if (data.fail_type === "not_active") {
+                                    alert(data.message)
+                                }
+                            } else if (data.status === 'success') {
+                                alert("Successfully logged in!");
+                                location.href = data.url
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                $('#jsRecodeImage').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'user:flush_recode_image' %}",
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success'){
+                                var path_1 = JSON.parse(data.recode_image).recode_image_path;
+                                var url_1 = "url({{ MEDIA_URL }}12345) 23px 9px no-repeat";
+                                url = url_1.replace("12345", path_1);
+                                $(".recode-image").css("background", url);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+
+</html>

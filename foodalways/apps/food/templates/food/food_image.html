@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+    <title>Food pictures | Foodalways</title>
+{% endblock %}
+
+
+{% block bread_crumb_navigation %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page"></li>
+            <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home page</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'food:food_image_rank' %}">Food pictures</a></li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block food_graph %}
+    <div style="margin: 10px 0">
+        <hr>
+        <img src="{{ MEDIA_URL }}{{ image.image }}" class="img-fluid" alt="Responsive image" style="margin: 10px 0">
+        <hr>
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-inline">
+                    <li class="list-inline-item">
+                        Collection and sharing:
+                    </li>
+                    <li class="list-inline-item" id="addLike">
+                        <img {% if like_status == 'yes' %}
+                            src="{% static 'media/image/like_1.png' %}" title="Liked"
+                        {% else %}
+                            src="{% static 'media/image/unlike_1.png' %}" title="Click to like"
+                        {% endif %}
+                            alt="Favorites" class="like-fav" id="likeImage">
+                        <input type="hidden" id="status-of-like" value="{{ like_status }}" class="hide">
+                    </li>
+                    <li class="list-inline-item" id="addFav" title="Favorite">
+                        <img {% if fav_status == 'yes' %}
+                            src="{% static 'media/image/fav_1.png' %}" title="Favorited"
+                        {% else %}
+                            src="{% static 'media/image/unfav_1.png' %}" title="Click to favorite"
+                        {% endif %}
+                            alt="Favorite" class="like-fav" id="favImage">
+                        <input type="hidden" id="status-of-fav"
+                               value="{{ fav_status }}">
+                    </li>
+                </ul>
+            </div>
+            <p class="col-6 text-right" style="color: gray; font-size: 14px">
+                <span style="color: tomato; font-size: 22px">{{ image.like }}&nbsp;</span>likes
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <span style="color: tomato; font-size: 22px">{{ image.fav }}&nbsp;</span>favorites
+            </p>
+        </div>
+        <p>
+            <span>
+                tags:&nbsp;
+                <small class="text-muted">
+                    {% for tag in image.tags.all %}
+                        <a href="{% url 'food:tag_image' tag %}" class="mr-1">
+                            <span>{{ tag }}</span>
+                        </a>
+                    {% endfor %}
+                </small>
+            </span>
+        </p>
+    </div>
+{% endblock %}
+
+
+{% block foot %}
+    <hr>
+    <footer class="footer navbar-fixed-bottom" style="margin-top: 20px">
+        <div class="container">
+            <div class="row" style="width:100%; margin: 40px auto 40px">
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Socials | Foodalways</p>
+                </div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Design by xxx</p>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block customerjs %}
+    <script>
+        $(document).ready(function () {
+            $('#addLike').on('click', function () {
+                if ($('#status-of-like').val() === 'unsigned') {
+                    alert('Please login again to perform the action');
+                    return false
+                } else {
+                    console.log(1);
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: {
+                            "status": $('#status-of-like').val(),
+                            "id": '{{image.name}}',
+                            "type": "food_image"
+                        },
+                        url: "{% url 'operator:add_like' %}",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                if (data.like_status === 'yes') {
+                                    var likeImage = '{% static "media/image/like_1.png" %}';
+                                    $('#likeImage').attr('src', likeImage);
+                                    $('#likeImage').attr('title', 'Like');
+                                    $('#status-of-like').val(data.like_status);
+                                } else if (data.like_status === 'no') {
+                                    var unlikeImage = '{% static "media/image/unlike_1.png" %}';
+                                    $('#likeImage').attr('src', unlikeImage);
+                                    $('#likeImage').attr('title', 'Click to like');
+                                    $('#status-of-like').val(data.like_status);
+                                }
+                            } else {
+                                alert("The operation failed, please try later");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#addFav').on('click', function () {
+                if ($('#status-of-fav').val() === 'unsigned') {
+                    alert('Please login again to perform the action');
+                    return false
+                } else {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: {
+                            "status": $('#status-of-fav').val(),
+                            "id": '{{image.name}}',
+                            "type": "food_image"
+                        },
+                        url: "{% url 'operator:add_fav' %}",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                if (data.fav_status === 'yes') {
+                                    var favImage = '{% static "media/image/fav_1.png" %}';
+                                    $('#favImage').attr('src', favImage);
+                                    $('#favImage').attr('title', 'Favorited');
+                                    $('#status-of-fav').val(data.fav_status);
+                                } else if (data.fav_status === 'no') {
+                                    var unfavImage = '{% static "media/image/unfav_1.png" %}';
+                                    $('#favImage').attr('src', unfavImage);
+                                    $('#favImage').attr('title', 'Click to favorite');
+                                    $('#status-of-fav').val(data.fav_status);
+                                }
+                            } else {
+                                alert(data.message);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

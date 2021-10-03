@@ -1,0 +1,131 @@
+/* Some custom extended styles */
+
+/* Stackoverflow preview fix, please ignore */
+.navbar-nav {
+    flex-direction: row;
+}
+
+.nav-link {
+    padding-right: .5rem !important;
+    padding-left: .5rem !important;
+}
+
+/* Fixes dropdown menus placed on the right side */
+.ml-auto .dropdown-menu {
+    left: auto !important;
+    right: 0;
+}
+
+.active {
+    font-weight: bold;
+}
+
+a:link {
+    color: #000000;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #000000;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #FF6347;
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
+}
+
+/* The default style, mainly position: fixed to achieve absolute screen positioning */
+#gotoTop {
+    display: none;
+    position: fixed;
+    top: 75%;
+    left: 50%;
+    cursor: pointer;
+    margin-top: -50px;
+    margin-left: 520px;
+    width: 48px;
+    height: 48px;
+    background: url(../media/image/to_top_1.png) 0 0 no-repeat;
+}
+
+/* Use CSS expression ( expression ) to achieve the position of ie6 : fixed effect */
+#gotoTop {
+    _position: absolute;
+    _top: expression(documentElement.scrollTop + documentElement.clientHeight * 3/4 + "px")
+}
+
+/* Feedback effect of mouse entry */
+#gotoTop:hover {
+    background: url(../media/image/to_top_2.png) 0 0 no-repeat;
+}
+
+/* The profile automatically pops up, and the message icon changes */
+/* Cancel the triangle symbol of the drop-down menu */
+nav .dropdown-toggle::after {
+    display: none;
+}
+
+/* Mouse hover to automatically pop up */
+nav.navbar li.dropdown.hover:hover > div.dropdown-menu {
+    display: block;
+}
+
+@media (min-width: 979px) {
+    nav.navbar li.dropdown.hover:hover > div.dropdown-menu {
+        display: block;
+    }
+}
+
+nav.navbar li.dropdown.hover a.dropdown-toggle > img.hover:hover {
+    box-shadow: 0 0 15px tomato;
+}
+
+@media (min-width: 979px) {
+    nav.navbar li.dropdown.hover a.dropdown-toggle > img.hover:hover {
+        box-shadow: 0 0 15px tomato;
+    }
+}
+
+
+li.nav-item button {
+    width: 120px;
+    height: 35px;
+    border-radius: 25px;
+    border: tomato 1px solid;
+    color: tomato;
+    background-color: #ffffff;
+    margin-top: 7px;
+}
+
+li.nav-item button:hover {
+    color: #ffffff;
+    background-color: rgba(255, 99, 71, 0.8);
+}
+
+li.nav-item button:focus {
+    outline: none;
+}
+
+button:focus {
+    outline: none;
+}
+
+h3 {
+    padding: 3px 0 5px 40px;
+    background: url(../media/image/title1.png) 0 0 no-repeat;
+}
+
+.like-fav {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.like-fav:hover {
+    box-shadow: 0 0 15px tomato;;
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <meta name="robots" content="index,follow">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/message_style.css' %}">
+    <link rel="shortcut icon" href="{% static 'media/image/favicon.ico' %}">
+
+    {% block title %}
+        <title>Foodalways | Messages</title>
+    {% endblock %}
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <a class="navbar-brand ml-4" href="{% url 'home_page' %}">
+        <img style="float: left; width: 201px; height: 42px" src="{% static 'media/image/foodalwayslogo.png' %}" alt="logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% if focus == 'home' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'home_page' %}">Home page<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'article' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'food:food_ranking' %}">Food list</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'image' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'food:food_image_rank' %}">Food pictures</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'message' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'message' %}">Leave a message</a>
+            </li>
+            <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+            <li class="nav-item {% if focus == 'about' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+        </ul>
+    </div>
+    <div class="collapse navbar-collapse mr-4" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+            {% if not request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:login' %}">Login<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item"><a class="nav-link disabled" href="javascript:void(0)">|</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:register' %}">Register</a>
+                </li>
+            {% else %}
+                <li class="nav-item dropdown mr-2 hover">
+                    <button type="button" class="mr-2" id="jsUploadFoodArticle">
+                        Upload food articles
+                    </button>
+                </li>
+                <li class="nav-item dropdown mr-2 hover">
+                    <a class="nav-link dropdown-toggle" href="#"
+                       id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <img src="{% static 'media/image/message_no_1.png' %}" alt="Info"
+                             style="width: 32px; height: 32px; border-radius: 16px" class="hover" id="jsMessageImage">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mt-0 rounded-0 border-0" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item disabled" href="#" id="jsMessageTitle">There are no new messages</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'operator:user_message' %}">Message center</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown hover">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <img src="{{ MEDIA_URL }}{{ request.user.head_portrait }}" alt="The avatars"
+                             style="width: 32px; height: 32px; border-radius: 16px" class="hover">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mt-0 rounded-0 border-0" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item disabled" href="#">Hi! {{ request.user.nick_name }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'operator:user_center' %}">Profile</a>
+                        <a class="dropdown-item" href="{% url 'user:logout' %}">Logout</a>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<div class="container" style="margin-top: 20px">
+    <div class="row">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item" aria-current="page"></li>
+                <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home page</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Leave a message</li>
+            </ol>
+        </div>
+        <div class="col-md-12 mt-4 mb-4">
+            <div class="row mt-4 mb-4">
+                <div class="col-2 text-center ml-3">
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item {% if message_focus == 'add' %}active{% endif %}" id="add-message-list"
+                           data-toggle="list" href="#add-message" role="tab" aria-controls="unread">Add a message</a>
+                        <a class="list-group-item {% if message_focus == 'read' %}active{% endif %}" id="read-message-list"
+                           data-toggle="list" href="#read-message" role="tab" aria-controls="read">See the message</a>
+                    </div>
+                </div>
+                <div class="col-9 ml-3">
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane fade {% if message_focus == 'add' %}show active{% endif %}"
+                             id="add-message" role="tabpanel" aria-labelledby="add-message-list">
+                            <div class="col-12">
+                                <form id="messageBoardForm">
+                                    <div class="card">
+                                        <div class="card-header" id="cardHeader">
+                                            <h5 class="mt-1 mb-1">Message board</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="nickNameInput">Nickname</label>
+                                                <input type="text" name="name" class="form-control" id="nickNameInput" placeholder="Please enter your nickname" required>
+                                                <small id="nickNameHelp" class="form-text text-muted">
+                                                    The nickname is only for display, and the length is no more than 20 characters
+                                                </small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="emailInput">Email</label>
+                                                <input type="email" name="email" class="form-control" id="emailInput" placeholder="Please enter your email" required>
+                                                <small id="emailHelp" class="form-text text-muted">
+                                                    The email is only for display, the author of the website may communicate with you via email
+                                                </small>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="messageTextarea">Message content</label>
+                                                <textarea class="form-control" name="message" id="messageTextarea" rows="5" required></textarea>
+                                                <small id="messageHelp" class="form-text text-muted">
+                                                    Please enter the content of your message, no more than 300 words in length
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white">
+                                            <button class="float-left" type="reset" id="resetMessage">
+                                                Clear
+                                            </button>
+                                            <button class="float-right" type="button" id="submitMessage">
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade {% if message_focus == 'read' %}show active{% endif %}"
+                             id="read-message" role="tabpanel" aria-labelledby="read-message-list">
+                            {% if message %}
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="rounded" id="accordion-read">
+                                            {% for read_message in message.object_list %}
+                                                <div class="card mb-1">
+                                                    <div class="card-header bg-white pb-2 pt-3" id="heading-read{{ forloop.counter }}">
+                                                        <div class="row">
+                                                            <div class="col-3 small">
+                                                                Message user: {{ read_message.name }}
+                                                            </div>
+                                                            <div class="col-5 small">
+                                                                Message email: {{ read_message.email }}
+                                                            </div>
+                                                            <div class="col-4 text-right small">
+                                                                Time when message was left:<span class="mr-4">{{ read_message.add_time|date:'Y-m-d' }}</span>
+                                                                <a role="button" data-toggle="collapse" href="#collapse-read{{ forloop.counter }}"
+                                                                   aria-expanded="false" aria-controls="collapse-read{{ forloop.counter }}">
+                                                                    <span class="mr-2">View message</span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapse-read{{ forloop.counter }}" class="collapse"
+                                                         aria-labelledby="heading-read{{ forloop.counter }}" data-parent="#accordion-read">
+                                                        <div class="card-body small">
+                                                            {{ read_message.message|linebreaksbr }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <nav aria-label="Page navigation mt-3">
+                                            <ul class="pagination justify-content-center">
+                                                {% if message.has_previous %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?{{ message.previous_page_number.querystring }}">&laquo;</a>
+                                                    </li>
+                                                {% else %}
+                                                    <li class="page-item disabled">
+                                                        <a class="page-link disabled">&laquo;</a>
+                                                    </li>
+                                                {% endif %}
+                                                {% for read_page in message.pages %}
+                                                    {% if read_page %}
+                                                        {% ifequal read_page message.number %}
+                                                            <li class="page-item disabled">
+                                                                <a class="page-link">{{ read_page }}</a>
+                                                            </li>
+                                                        {% else %}
+                                                            <li class="page-item">
+                                                                <a class="page-link" href="?{{ read_page.querystring }}">{{ read_page }}</a>
+                                                            </li>
+                                                        {% endifequal %}
+                                                    {% else %}
+                                                        {# If the page is not paginated, nothing will be displayed here #}
+                                                        <li class="none"><a href="" class="page">...</a></li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if message.has_next %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?{{ message.next_page_number.querystring }}">&raquo;</a>
+                                                    </li>
+                                                {% else %}
+                                                    <li class="page-item disabled">
+                                                        <a class="page-link disabled">&raquo;</a>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="lead ml-2">There are currently no messages...</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div id="page"></div>
+{% block foot %}
+    <hr>
+    <footer class="footer navbar-fixed-bottom" style="margin-top: 20px">
+        <div class="container">
+            <div class="row" style="width:100%; margin: 40px auto 40px">
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Socials | Foodalways</p>
+                </div>
+                <div class="col-md-4" style="width: 100%">
+                    <p class="text-center">Design by xxx</p>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+<script type="text/javascript" src="{% static 'js/jquery-3.4.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/crsf_ajax.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/custome.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('#submitMessage').on("click", function () {
+            var nick_name = $("#nickNameInput").val();
+            var email = $("#emailInput").val();
+            var message = $("#messageTextarea").val();
+            var pattern = /^([a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,})){1}(;[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,}))*$/;
+            if (nick_name.length > 20) {
+                $('#nickNameHelp').text('The length of the nickname exceeds 20 characters');
+                $('#nickNameInput').addClass('error');
+                return false
+            } else if (nick_name.length === 0) {
+                $('#nickNameHelp').text('Nickname cannot be empty');
+                $('#nickNameInput').addClass('error');
+                return false
+            } else {
+                $('#nickNameInput').removeClass('error');
+                $('#nickNameHelp').text('Valid nickname');
+            }
+            if (pattern.test(email)) {
+                $('#emailHelp').text('The email meets the requirements');
+                $('#emailInput').removeClass('error');
+            } else {
+                $('#emailHelp').text('The email does not meet the requirements');
+                $('#emailInput').addClass('error');
+                return false
+            }
+            if (message.length > 300) {
+                $('#messageHelp').text('The message content exceeds 300 characters');
+                $('#messageTextarea').addClass('error');
+                return false
+            } else if (message.length === 0) {
+                $('#messageHelp').text('Message content cannot be empty');
+                $('#messageTextarea').addClass('error');
+                return false
+            } else {
+                $('#messageTextarea').removeClass('error');
+            }
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                data: $('#messageBoardForm').serialize(),
+                url: "{% url 'operator:add_message_board' %}",
+                async: true,
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        alert('Message sent successfully');
+                        $('#resetMessage').click();
+                    } else {
+                        alert('Failed to sent message, please try again later');
+                    }
+                }
+            })
+        })
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        var logged = '{{ request.user.is_authenticated }}';
+        console.log(logged);
+        if (logged === "True") {
+            $.ajax({
+                cache: false,
+                type: "GET",
+                async: true,
+                url: "{% url 'operator:get_user_message' %}",
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        if (data.counter > 0) {
+                            var image = "{% static 'media/image/message_1.png' %}";
+                            var message = 'You have ' + data.counter + ' unread messages';
+                            $('#jsMessageImage').attr('src', image);
+                            $('#jsMessageTitle').text(message)
+                        } else {
+                            return false
+                        }
+                    }
+                }
+            })
+        } else {
+            return false
+        }
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $('#jsUploadFoodArticle').on('click', function () {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "{% url 'operator:upload_food_article' %}",
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        location.href = data.url
+                    } else {
+                        alert('The operation failed, please try again later!')
+                    }
+                }
+            })
+        })
+    })
+</script>
+</body>
+</html>
