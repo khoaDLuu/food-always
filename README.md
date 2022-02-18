@@ -1,5 +1,5 @@
 # Foodalways
-A food making tutorial and food picture website
+A copy of the food making tutorial and food picture website. Original repo: https://github.com/fandiandian/fansfood
 
 Front end use: Bootstrap build<br>
 Back-end development environment: python3.6.2 + django2.2 + xadmin2 (xadmin needs to be installed separately)<br>
